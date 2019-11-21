@@ -1,6 +1,6 @@
 FROM gadgetron/ubuntu_1804_cuda92_cudnn7_base
 
-ARG GADGETRON_URL=https://github.com/dbosch/gadgetron
+ARG GADGETRON_URL=https://github.com/dabosch/gadgetron
 ARG GADGETRON_BRANCH=tuebingen
 
 RUN apt-get -y install gcc-6 g++-6
