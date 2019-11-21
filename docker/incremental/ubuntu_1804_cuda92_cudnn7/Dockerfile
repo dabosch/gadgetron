@@ -1,7 +1,7 @@
 FROM gadgetron/ubuntu_1804_cuda92_cudnn7_base
 
-ARG GADGETRON_URL=https://github.com/gadgetron/gadgetron
-ARG GADGETRON_BRANCH=master
+ARG GADGETRON_URL=https://github.com/dbosch/gadgetron
+ARG GADGETRON_BRANCH=tuebingen
 
 RUN apt-get -y install gcc-6 g++-6
 
@@ -19,12 +19,19 @@ RUN cd /opt/code && \
 RUN sed -i "s;#error -- unsupported GNU version! gcc versions later than 4.9 are not supported!;//#error -- unsupported GNU version! gcc versions later than 4.9 are not supported!;g" /usr/local/cuda/include/host_config.h
 
 #GADGETRON
+
+ENV GADGETRON_HOME=/opt/gadgetron/
+ENV PATH=$PATH:$GADGETRON_HOME/bin:$ISMRMRD_HOME/bin
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GADGETRON_HOME/lib:$ISMRMRD_HOME/lib
+ENV GT_INSTALL_DIR=${GADGETRON_HOME}
+
 RUN cd /opt/code && \
     git clone ${GADGETRON_URL} --branch ${GADGETRON_BRANCH} --single-branch && \
     cd gadgetron && \
     mkdir build && \
     cd build && \
-    cmake -DCUDA_NVCC_FLAGS="-ccbin gcc-6" -DBUILD_WITH_PYTHON3=ON ../ && \
+    cmake -DCUDA_NVCC_FLAGS="-ccbin gcc-6" -DBUILD_WITH_PYTHON3=ON \
+    -DCMAKE_INSTALL_PREFIX=${GT_INSTALL_DIR} ../ && \
     make -j $(nproc) && \
     make install && \
     /opt/code/gadgetron/docker/manifest --key .io.gadgetron.gadgetron.sha1 --value `git rev-parse HEAD` && \
